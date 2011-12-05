@@ -11,7 +11,12 @@
 import os
 import sys
 import subprocess
+
+from twisted.internet import reactor
+
+from slate.custom import ChannelLogger
 from slate.misc_lib import get_input
+
 
 def run(args, restartable=True):
     args = args[2:].lower()
@@ -54,8 +59,16 @@ def run(args, restartable=True):
     
     if args == 'config':
         from slate.config import Configure
-        Configure()
-        if restartable:
+        log = ChannelLogger(default_sns=False)
+        Configure(
+            reactor, 
+            '110', '605c4a06216380fbdff26228c53cf610',
+            agent='slate config',
+            option=1,
+            stdout=log.message,
+            stddebug=log.debug
+        )
+        if not restartable:
             return
     
     if args == 'exit':

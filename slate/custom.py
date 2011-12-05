@@ -12,6 +12,7 @@ import os.path
 from twisted.internet import reactor
 
 from stutter import logging
+from reflex.data import Event
 from dAmnViper.base import dAmnClient
 
 
@@ -22,13 +23,17 @@ class ChannelLogger(logging.ThreadedLogger):
         appropriate sub folders of the logging directory.
     """
     
-    def __init__(self, default_ns=None, *args, **kwargs):
+    def __init__(self, default_ns=None, default_sns=True, *args, **kwargs):
         super(ChannelLogger, self).__init__(save_folder='./storage/logs', *args, **kwargs)
         self.default_ns = default_ns or '~Global'
+        self.default_sns = default_sns
     
-    def _fname(self, timestamp, ns=None, showns=True):
+    def _fname(self, timestamp, ns=None, showns=None):
         """ Return a file name based on the given input. """
         ns = ns or self.default_ns
+        if showns is None:
+            showns = self.default_sns
+        
         cdir = '{0}/{1}'.format(self.save_folder, ns)
         
         if not os.path.exists(cdir):
@@ -36,10 +41,12 @@ class ChannelLogger(logging.ThreadedLogger):
         
         return '{0}/{1}.txt'.format(cdir, time.strftime('%Y-%m-%d', time.localtime(timestamp)))
     
-    def _display(self, lower, message, timestamp, ns=None, showns=True):
+    def _display(self, lower, message, timestamp, ns=None, showns=None):
         """ Display the message. """
         if lower:
             return
+        if showns is None:
+            showns = self.default_sns
         
         ns = ns or self.default_ns
         mns = '{0}|'.format(ns) if showns else ''
@@ -48,7 +55,7 @@ class ChannelLogger(logging.ThreadedLogger):
 
 class Client(dAmnClient):
     
-    def init(self, stddebug=None):
+    def init(self, stddebug=None, _events=None):
         if stddebug is None:
             def debug(*args, **kwargs):
                 return
@@ -59,6 +66,9 @@ class Client(dAmnClient):
             self.flag.debug = True
             
         self.default_ns = '~Global'
+        self._events = _events
+        self.trigger = '!'
+        self.owner = 'noone'
     
     def teardown(self):
         try:
@@ -73,6 +83,9 @@ class Client(dAmnClient):
             return
         
         self.stdout(msg, ns=ns, showns=showns)
+    
+    def pkt_generic(self, event):
+        self._events.trigger(Event(event.name, event.arguments.items()), self)
 
 
 # EOF

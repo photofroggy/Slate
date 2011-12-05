@@ -8,6 +8,7 @@
 import os
 import sys
 import json
+from twisted.internet import defer
 from twisted.internet import reactor
 
 from dAmnViper.dA.api import APIClient
@@ -82,12 +83,19 @@ class Configure:
     # - secret: 605c4a06216380fbdff26228c53cf610
     file = './storage/config.bsv'
     
-    def __init__(self, _reactor, id, secret, file='./storage/config.bsv', port=8080, agent='slate/1 (dAmnViper 2)', option='all', state=None):
+    def __init__(self, _reactor, id, secret, file='./storage/config.bsv', port=8080, agent='slate/1 (dAmnViper 2)', option=None, state=None, stdout=None, stddebug=None):
+        
+        def default_write(msg, *args):
+            pass
+        
+        self.stdout = stdout or default_write
+        self._debug = stddebug or default_write
+        
         self.file = file
         if not os.path.exists('./storage'):
             os.mkdir('./storage', 0o755)
         self.write('Welcome to the configuration file!')
-    
+        
         self.data = Settings(self.file)
         
         self.api = APIClient(_reactor, id, secret, self.data.api.code, self.data.api.token, agent)
@@ -95,55 +103,67 @@ class Configure:
         self.state = state
         self._reactor = reactor
         
-        if option == 'all' or not self.data.api.username:
-            self.run_all('http://localhost:{0}'.format(port))
+        if option is None or not self.data.api.username:
+            return self.run_all('http://localhost:{0}'.format(port))
         else:
             self.menu()
     
     def write(self, msg):
-        sys.stdout.write('>>> {0}\n'.format(msg))
-        sys.stdout.flush()
+        self.stdout(msg, showns=False)
+    
+    def debug(self, msg):
+        self.debug(msg, showns=False)
     
     def menu(self):
         while True:
             self.data.load()
             self.write('Current configuration:')
             # Display config data!
-            info = self.data.info
+            info = self.data.api
             self.write('Bot {0} = {1}'.format('username', info.username))
-            self.write('Bot {0} = {1}'.format('password', info.password))
-            self.write('Bot {0} = {1}'.format('owner', info.owner))
-            self.write('Bot {0} = {1}'.format('trigger', info.trigger))
+            self.write('Bot {0} = {1}'.format('owner', self.data.owner))
+            self.write('Bot {0} = {1}'.format('trigger', self.data.trigger))
             self.write('Autojoin:')
             self.write(', '.join(self.data.autojoin))
             self.write('')
             self.write('Choose one of the following options:')
-            self.write('info - Set the bot\'s configuration information.')
+            self.write('user - authorize the bot with a different account.')
+            self.write('info - Set the bot\'s owner and trigger.')
             self.write('autojoin - Set the bot\'s autojoin list.')
             self.write('all - Set all configuration data.')
             self.write('exit - Leave the configuration file.')
             ins = ''
-            while not ins in ('all', 'autojoin', 'exit', 'info'):
+            
+            while not ins in ('all', 'autojoin', 'exit', 'info', 'user'):
                 ins = get_input('>> ').lower()
+            
             if ins == 'exit':
                 return
+            
             if ins == 'all':
-                self.run_all()
+                self.run_all('http://localhost:{0}'.format(self.port))
                 continue
+            
             if ins == 'info':
                 self.get_info()
                 self.save()
                 continue
+            
             if ins == 'autojoin':
                 self.get_autojoin()
                 self.save()
+            
+            if ins == 'user':
+                self.start_auth('http://localhost:{0}'.format(self.port))
+                
     
     def run_all(self, redirect):
         self.write('Please fill in the following appropriately.')
         self.get_info()
         self.get_autojoin()
         self.write('Ok! Now we need to authorize!')
-        self.start_auth(redirect)
+        self.d = defer.Deferred()
+        return self.start_auth(redirect)
     
     def start_auth(self, redirect):
         """ Start the auth application.
@@ -162,15 +182,16 @@ class Configure:
             state=self.state
         )
         # Send user there, somehow...
-        sys.stdout.write('>> Visit the following URL to authorize this app:\n')
-        sys.stdout.write('{0}\n'.format(url))
+        self.write('Visit the following URL to authorize this app:')
+        sys.stdout.write('{0}'.format(url))
+        sys.stdout.flush()
         
         self._reactor.run()
         # Now we wait for the user's webbrowser to be redirected to our server.
     
     def authSuccess(self, response):
         """ Called when the app is successfully authorized. """
-        sys.stdout.write('>> Got auth code!\n')
+        self.write('Got an auth code!')
         # sys.stdout.write('>> debug:\n')
         # sys.stdout.write('>> {0}\n'.format(response.args))
         self.data.api.code = self.api.auth_code
@@ -180,15 +201,15 @@ class Configure:
     
     def authFailure(self, response):
         """ Called when authorization fails. """
-        sys.stdout.write('>> Authorization failed.\n')
-        sys.stdout.write('>> Printing debug data...\n')
-        sys.stdout.write('>> {0}\n'.format(response))
+        self.write('Authorization failed.')
+        self.debug('Printing debug data...')
+        self.debug('{0}'.format(response.data))
+        self.d.errback(response)
         self._reactor.stop()
     
     def grantSuccess(self, response):
         """ Called when the app is granted access to the API. """
-        sys.stdout.write('>> Got an access token!\n')
-        #sys.stdout.write('>> Getting user information...\n')
+        self.write('Got an access token!')
         self.data.api.token = self.api.token
         self.data.api.refresh = response.data['refresh_token']
         self.data.save()
@@ -197,9 +218,10 @@ class Configure:
     
     def grantFailure(self, response):
         """ Called when the app is refused access to the API. """
-        sys.stdout.write('>> Failed to get an access token.\n')
-        sys.stdout.write('>> Printing debug data...\n')
-        sys.stdout.write('>> {0}\n'.format(response))
+        self.write('Failed to get an access token.')
+        self.debug('Printing debug data...')
+        self.debug(response.data)
+        self.d.errback(response)
         self._reactor.stop()
     
     def whoami(self, response):
@@ -208,7 +230,11 @@ class Configure:
         #sys.stdout.write('\n')
         
         if not 'username' in response.data:
-            sys.stdout.write('>> whoami failed.\n')
+            self.write('whoami failed.')
+            self.debug('Debug data:')
+            self.debug(response.data)
+            self.d.errback(response)
+            self._reactor.stop()
             # damntoken?
             return
         
@@ -217,7 +243,7 @@ class Configure:
         self.data.api.symbol = symbol
         self.data.api.username = username
         self.data.save()
-        sys.stdout.write('>> Authorized account {0}{1}\n'.format(symbol, username))
+        self.write('Authorized account {0}{1}'.format(symbol, username))
         self.api.user_damntoken().addCallback(self.damntoken)
     
     def damntoken(self, response):
@@ -225,12 +251,16 @@ class Configure:
         self._reactor.stop()
         
         if response.data is None:
-            sys.stdout.write('>> damntoken failed.\n')
+            self.write('damntoken failed.')
+            self.debug('debug data:')
+            self.debug(response)
+            self.d.errback(response)
             return
         
         self.data.api.damntoken = response.data['damntoken']
-        sys.stdout.write('>> retrieved authtoken\n')
+        self.write('Retrieved authtoken')
         self.save()
+        self.d.callback(response)
     
     def get_info(self):
         for option in ['owner', 'trigger']:

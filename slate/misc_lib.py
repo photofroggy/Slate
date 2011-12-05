@@ -61,7 +61,6 @@ def flatten_val(value):
             return 'true'
         if value is False:
             return 'false'
-        return str(value)
     return '"{0}"'.format(str(value).replace('"', '\\"'))
     
 def human_list(sequence):

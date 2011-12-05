@@ -12,4 +12,7 @@
     * Hooked up a channel logger.
     * Hooked up a custom dAmn Client.
     * Basically capable of signing in and logging chats already.
+    * Startup process made smoother.
+    * Hooking in the events system.
+    * Hooking in the user manager.
      
