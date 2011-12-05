@@ -9,12 +9,17 @@ from twisted.internet import reactor
 
 from stutter import logging
 from reflex.control import EventManager
+from reflex.control import RulesetBattery
+from reflex.control import ReactorBattery
 
 from slate.users import UserManager
 from slate.custom import Client
 from slate.custom import ChannelLogger
 from slate.config import Settings
 from slate.config import Configure
+
+from slate import rules
+import extensions
 
 
 class Bot(object):
@@ -78,6 +83,11 @@ class Bot(object):
             stddebug=self.logger.debug,
             _events=self.events
         )
+        self.rule_batt = RulesetBattery()
+        self.ext_batt = ReactorBattery()
+        self.rule_batt.load_objects(self.events, rules)
+        self.ext_batt.load_objects(self.events, extensions)
+    
     
     def start_configure(self):
         self.config.load()

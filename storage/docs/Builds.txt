@@ -15,4 +15,5 @@
     * Startup process made smoother.
     * Hooking in the events system.
     * Hooking in the user manager.
+    * Added some battery loading goodness.
      
