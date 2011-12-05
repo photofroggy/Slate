@@ -1,0 +1,11 @@
+
+    Welcome to the build list!
+    This tells you the date of each build, and perhaps some brief details.
+    The format for build names is "Build [build number] ([date]-[time(24hr)]) [Build series name]
+
+    Build 1 () Chip
+    * First commit!
+    * Folder structure.
+    * Grabbing in viper, reflex and stutter.
+    * Grabbing in misc_lib.
+        
