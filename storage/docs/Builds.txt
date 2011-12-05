@@ -8,4 +8,5 @@
     * Folder structure.
     * Grabbing in viper, reflex and stutter.
     * Grabbing in misc_lib.
-        
+    * Got some api and config stuff going.
+     

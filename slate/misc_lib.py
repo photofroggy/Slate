@@ -173,7 +173,7 @@ def create_folders(folders, mode=0o755):
     
 def get_input(prefix='> ', empty=False):
     while True:
-        ins = input(prefix).rstrip('\r')
+        ins = raw_input(prefix).rstrip('\r')
         if (len(ins) == 0 and empty) or len(ins) > 0:
             return ins
 
