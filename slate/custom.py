@@ -6,6 +6,8 @@
 
 
 import os
+import sys
+import time
 import os.path
 from twisted.internet import reactor
 
@@ -21,7 +23,7 @@ class ChannelLogger(logging.ThreadedLogger):
     """
     
     def __init__(self, default_ns=None, *args, **kwargs):
-        super(ChannelLogger, self).__init__(*args, **kwargs)
+        super(ChannelLogger, self).__init__(save_folder='./storage/logs', *args, **kwargs)
         self.default_ns = default_ns or '~Global'
     
     def _fname(self, timestamp, ns=None, showns=True):
@@ -42,6 +44,35 @@ class ChannelLogger(logging.ThreadedLogger):
         ns = ns or self.default_ns
         mns = '{0}|'.format(ns) if showns else ''
         self.stdout('{0}{1}{2}\n'.format(self.time(timestamp), mns, message))
+
+
+class Client(dAmnClient):
+    
+    def init(self, stddebug=None):
+        if stddebug is None:
+            def debug(*args, **kwargs):
+                return
+            self.debug = debug
+            return
+        else:
+            self.debug = stddebug
+            self.flag.debug = True
+            
+        self.default_ns = '~Global'
+    
+    def teardown(self):
+        try:
+            reactor.stop()
+        except Exception:
+            pass
+        
+    def logger(self, msg, ns=None, showns=True, mute=False, pkt=None, ts=None):
+        """ Write output to stdout. """
+        if mute:
+            self.debug(msg, ns=ns, showns=showns)
+            return
+        
+        self.stdout(msg, ns=ns, showns=showns)
 
 
 # EOF

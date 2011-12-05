@@ -27,8 +27,8 @@ def run(args, restartable=True):
             args = get_input().lower()
             
     if args in ('bot', 'debug'):
-        '''from slate import core
-        ret = core.Main(args == 'debug', restartable)
+        from slate import core
+        ret = core.Bot(args == 'debug', restartable)
         sys.stdout.write(('='*80) + '\n')
         
         if ret.close and not (ret.restart and restartable):
@@ -49,12 +49,12 @@ def run(args, restartable=True):
             subprocess.Popen([sys.executable] + argv)
             return
         
-        input('>> Press enter to continue...')'''
+        input('>> Press enter to continue...')
         return
     
     if args == 'config':
-        #from slate.config import Configure
-        #Configure()
+        from slate.config import Configure
+        Configure()
         if restartable:
             return
     

@@ -163,7 +163,7 @@ class Configure:
         )
         # Send user there, somehow...
         sys.stdout.write('>> Visit the following URL to authorize this app:\n')
-        sys.stdout.write('>> {0}\n'.format(url))
+        sys.stdout.write('{0}\n'.format(url))
         
         self._reactor.run()
         # Now we wait for the user's webbrowser to be redirected to our server.

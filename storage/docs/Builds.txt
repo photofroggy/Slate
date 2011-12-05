@@ -9,4 +9,7 @@
     * Grabbing in viper, reflex and stutter.
     * Grabbing in misc_lib.
     * Got some api and config stuff going.
+    * Hooked up a channel logger.
+    * Hooked up a custom dAmn Client.
+    * Basically capable of signing in and logging chats already.
      
