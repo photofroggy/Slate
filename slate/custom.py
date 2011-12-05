@@ -55,7 +55,7 @@ class ChannelLogger(logging.ThreadedLogger):
 
 class Client(dAmnClient):
     
-    def init(self, stddebug=None, _events=None):
+    def init(self, stddebug=None, _events=None, _teardown=None):
         if stddebug is None:
             def debug(*args, **kwargs):
                 return
@@ -67,6 +67,7 @@ class Client(dAmnClient):
             
         self.default_ns = '~Global'
         self._events = _events
+        self._teardown = _teardown
         self.trigger = '!'
         self.owner = 'noone'
     
@@ -76,11 +77,25 @@ class Client(dAmnClient):
         except Exception:
             pass
         
+        try:
+            self._teardown()
+        except Exception:
+            pass
+        
     def logger(self, msg, ns=None, showns=True, mute=False, pkt=None, ts=None):
         """ Write output to stdout. """
         if mute:
             self.debug(msg, ns=ns, showns=showns)
             return
+        
+        ns = ns or self.default_ns
+        
+        try:
+            if msg.startswith('** Got ') and self.channel[self.format_ns(ns)].member == {}:
+                self.debug(msg, ns=ns, showns=showns)
+                return
+        except KeyError:
+            pass
         
         self.stdout(msg, ns=ns, showns=showns)
     

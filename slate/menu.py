@@ -54,13 +54,13 @@ def run(args, restartable=True):
             subprocess.Popen([sys.executable] + argv)
             return
         
-        input('>> Press enter to continue...')
+        raw_input('>> Press enter to continue...')
         return
     
     if args == 'config':
         from slate.config import Configure
         log = ChannelLogger(default_sns=False)
-        Configure(
+        c=Configure(
             reactor, 
             '110', '605c4a06216380fbdff26228c53cf610',
             agent='slate config',
@@ -68,6 +68,7 @@ def run(args, restartable=True):
             stdout=log.message,
             stddebug=log.debug
         )
+        
         if not restartable:
             return
     

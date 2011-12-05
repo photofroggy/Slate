@@ -83,15 +83,17 @@ class Configure:
     # - secret: 605c4a06216380fbdff26228c53cf610
     file = './storage/config.bsv'
     
-    def __init__(self, _reactor, id, secret, file='./storage/config.bsv', port=8080, agent='slate/1 (dAmnViper 2)', option=None, state=None, stdout=None, stddebug=None):
+    def __init__(self, _reactor, id, secret, file='./storage/config.bsv', port=8080, agent='slate/1 (dAmnViper 2)', option=None, state=None, stdout=None, stddebug=None, cache='./storage/api.cache'):
         
         def default_write(msg, *args):
             pass
         
         self.stdout = stdout or default_write
         self._debug = stddebug or default_write
+        self.d = None
         
         self.file = file
+        self.cachef = cache
         if not os.path.exists('./storage'):
             os.mkdir('./storage', 0o755)
         self.write('Welcome to the configuration file!')
@@ -104,7 +106,7 @@ class Configure:
         self._reactor = reactor
         
         if option is None or not self.data.api.username:
-            return self.run_all('http://localhost:{0}'.format(port))
+            self.run_all('http://localhost:{0}'.format(port))
         else:
             self.menu()
     
@@ -112,7 +114,7 @@ class Configure:
         self.stdout(msg, showns=False)
     
     def debug(self, msg):
-        self.debug(msg, showns=False)
+        self._debug(msg, showns=False)
     
     def menu(self):
         while True:
@@ -154,7 +156,7 @@ class Configure:
                 self.save()
             
             if ins == 'user':
-                self.start_auth('http://localhost:{0}'.format(self.port))
+                self.get_user('http://localhost:{0}'.format(self.port))
                 
     
     def run_all(self, redirect):
@@ -162,8 +164,40 @@ class Configure:
         self.get_info()
         self.get_autojoin()
         self.write('Ok! Now we need to authorize!')
-        self.d = defer.Deferred()
-        return self.start_auth(redirect)
+        return self.get_user(redirect)
+    
+    def get_user(self, redirect):
+        try:
+            file = open(self.cachef, 'r')
+            cache = json.loads(file.read())
+            file.close()
+        except IOError:
+            self.debug('>> No cache data stored.')
+            self.d = defer.Deferred()
+            self.start_auth(redirect)
+            return self.d
+        
+        user = get_input('> Bot username: ')
+        
+        try:
+            data = cache[user.lower()]
+            self.data.api.username = data['username']
+            self.data.api.symbol = data['symbol']
+            self.data.api.code = data['code']
+            self.data.api.token = data['token']
+            self.data.api.refresh = data['refresh']
+            self.data.api.damntoken = data['damntoken']
+            self.debug('** Found cached data for {0}{1}.'.format(data['symbol'], data['username']))
+            self.save()
+        except KeyError:
+            self.write('>> No cached data stored for \'{0}\'.'.format(user))
+            self.write('>> Requires authorization.')
+            self.d = defer.Deferred()
+            self.start_auth(redirect)
+            return self.d
+        
+        return None
+        
     
     def start_auth(self, redirect):
         """ Start the auth application.
@@ -183,7 +217,7 @@ class Configure:
         )
         # Send user there, somehow...
         self.write('Visit the following URL to authorize this app:')
-        sys.stdout.write('{0}'.format(url))
+        sys.stdout.write('{0}\n'.format(url))
         sys.stdout.flush()
         
         self._reactor.run()
@@ -203,9 +237,8 @@ class Configure:
         """ Called when authorization fails. """
         self.write('Authorization failed.')
         self.debug('Printing debug data...')
-        self.debug('{0}'.format(response.data))
-        self.d.errback(response)
-        self._reactor.stop()
+        self.debug('{0}'.format(response))
+        self.d.callback({'status': False, 'response': response})
     
     def grantSuccess(self, response):
         """ Called when the app is granted access to the API. """
@@ -219,10 +252,10 @@ class Configure:
     def grantFailure(self, response):
         """ Called when the app is refused access to the API. """
         self.write('Failed to get an access token.')
-        self.debug('Printing debug data...')
-        self.debug(response.data)
-        self.d.errback(response)
+        #self.debug('Printing debug data...')
+        #self.debug(response)
         self._reactor.stop()
+        self.d.callback({'status': False, 'response': response})
     
     def whoami(self, response):
         """ Handle the response to whoami API call. """
@@ -233,8 +266,8 @@ class Configure:
             self.write('whoami failed.')
             self.debug('Debug data:')
             self.debug(response.data)
-            self.d.errback(response)
             self._reactor.stop()
+            self.d.callback({'status': False, 'response': response})
             # damntoken?
             return
         
@@ -254,13 +287,14 @@ class Configure:
             self.write('damntoken failed.')
             self.debug('debug data:')
             self.debug(response)
-            self.d.errback(response)
+            self.d.callback({'status': False, 'response': response})
             return
         
         self.data.api.damntoken = response.data['damntoken']
         self.write('Retrieved authtoken')
         self.save()
-        self.d.callback(response)
+        self.cache()
+        self.d.callback({'status': True, 'response': response})
     
     def get_info(self):
         for option in ['owner', 'trigger']:
@@ -286,5 +320,30 @@ class Configure:
         self.data.save()
         
         self.write( 'Configuration file saved!' )
+    
+    def cache(self):
+        try:
+            file = open(self.cachef, 'r')
+            cache = json.loads(file.read())
+            file.close()
+        except IOError:
+            cache = {}
+        
+        cache[self.data.api.username.lower()] = {
+                'username': self.data.api.username,
+                'symbol': self.data.api.symbol,
+                'code': self.data.api.code,
+                'token': self.data.api.token,
+                'refresh': self.data.api.refresh,
+                'damntoken': self.data.api.damntoken
+        }
+        
+        try:
+            file = open(self.cachef, 'w')
+            file.write(export_struct(cache))
+            file.close()
+        except IOError:
+            pass
+
     
 # EOF

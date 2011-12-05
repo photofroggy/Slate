@@ -81,7 +81,8 @@ class Bot(object):
         self.client = Client(
             stdout=self.logger.message,
             stddebug=self.logger.debug,
-            _events=self.events
+            _events=self.events,
+            _teardown=self.teardown
         )
         self.rule_batt = RulesetBattery()
         self.ext_batt = ReactorBattery()
@@ -100,15 +101,26 @@ class Bot(object):
                 stdout=self.logger.message,
                 stddebug=self.logger.debug
             )
-            c.d.addCallback(self.configured)
-            c.d.addErrback(self.noncon)
-            return
+            
+            if c.d is not None:
+                c.d.addCallback(self.configured)
+                return
         
-        self.configured({})
+        self.configured({'status': True, 'response': None})
     
     def configured(self, response):
         self.config.load()
-        if self.config.api.username is None:
+        
+        if response['status'] is False or self.config.api.username is None:
+            try:
+                reactor.stop()
+            except Exception:
+                pass
+            
+            #self.logger.warning('Failed to retrieve login codes.', showns=False)
+            self.logger.message('Exiting...', showns=False)
+            self.logger.stop()
+            self.logger.push(0)
             return False
         
         self.client.user.username = self.config.api.username
@@ -121,12 +133,8 @@ class Bot(object):
         
         self.client.start()
         reactor.run()
-        
-        self.logger.stop()
-        self.logger.push(0)
     
-    def noncon(self, response):
-        self.logger.warning('Failed to retrieve login codes.', showns=False)
+    def teardown(self):
         self.logger.message('Exiting...', showns=False)
         self.logger.stop()
         self.logger.push(0)
