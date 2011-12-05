@@ -2,8 +2,9 @@
 Slate
 ==========
 
-Slae is a bot for **dAmn**, built in **Python** using **reflex** and
-**dAmn Viper**.
+Slate is a bot for **dAmn**, deviantART's chatrooms.
+
+Slate is built in **Python** using **reflex**, **stutter**, and **dAmn Viper**.
 
 ----------
 DISCLAIMER
