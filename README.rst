@@ -4,7 +4,7 @@ Slate
 
 Slate is a bot for **dAmn**, deviantART's chatrooms.
 
-Slate is built in **Python** using **reflex**, **stutter**, and **dAmn Viper**.
+Slate is built in **Python** using **`reflex`_**, **`stutter`_**, and **`dAmn Viper`_**.
 
 ================
 Setting up slate
@@ -14,8 +14,8 @@ Setting up Slate is pretty simple.
 ------------
 Requirements
 ------------
-To run **Slate**, you must first install *Python 2.7 or better* and
-*twisted 11.0.0* or better. These two things are required for Slate to work
+To run **Slate**, you must first install *`Python 2.7`_* or better and
+*`twisted 11.0.0`_* or better. These two things are required for Slate to work
 properly.
 
 ------------------
@@ -83,3 +83,9 @@ Disclaimer::
 	PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
 	IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
 	ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+    
+.. _`reflex`: https://photofroggy.github.com/reflex/index.html
+.. _`stutter`: https://github.com/photofroggy/stutter
+.. _`dAmn Viper`: https://photofroggy.github.com/dAmnViper/index.html
+.. _`Python 2.7`: http://python.org/download/
+.. _`twisted 11.0.0`: http://twistedmatrix.com/trac/wiki/Downloads
