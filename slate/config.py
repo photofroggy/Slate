@@ -206,7 +206,7 @@ class Configure:
             url on screen. The user should visit this url to authorize the app.
         """
         d = self.api.auth_app(self.port)
-        d.addCallbacks(self.authSuccess, self.authFailure)
+        d.addCallback(self.authResponse)
         # Make a url
         url = self.api.url('authorize', api='oauth2',
             client_id=self.api.client_id,
@@ -223,7 +223,7 @@ class Configure:
         self._reactor.run()
         # Now we wait for the user's webbrowser to be redirected to our server.
     
-    def authSuccess(self, response):
+    def authResponse(self, response):
         """ Called when the app is successfully authorized. """
         if not response['status']:
             resp = response['data']
@@ -239,18 +239,11 @@ class Configure:
         self.data.api.code = self.api.auth_code
         self.data.save()
         d = self.api.grant(req_state=self.state)
-        d.addCallbacks(self.grantSuccess, self.grantFailure)
+        d.addCallbacks(self.grantResponse, self.grantFailure)
         
         return response
     
-    '''def authFailure(self, response):
-        """ Called when authorization fails. """
-        self.write('Authorization failed.')
-        self.debug('Printing debug data...')
-        self.debug('{0}'.format(response))
-        self.d.callback({'status': False, 'response': response})'''
-    
-    def grantSuccess(self, response):
+    def grantResponse(self, response):
         """ Called when the app is granted access to the API. """
         if not response['status']:
             self.write('>> Failed to get an access token.\n')
@@ -266,7 +259,7 @@ class Configure:
         
         self.write('Got an access token!')
         self.data.api.token = self.api.token
-        self.data.api.refresh = response.api.refresh_token
+        self.data.api.refresh = self.api.refresh_token
         self.data.save()
         # whoami?
         self.api.user_whoami().addCallback(self.whoami)
@@ -275,8 +268,6 @@ class Configure:
     def grantFailure(self, response):
         """ Called when the app is refused access to the API. """
         self.write('Failed to get an access token.')
-        #self.debug('Printing debug data...')
-        #self.debug(response)
         self._reactor.stop()
         self.d.callback({'status': False, 'response': response})
         return response
@@ -300,7 +291,6 @@ class Configure:
     
     def damntoken(self, response):
         """ Handle the response to whoami API call. """
-        self._reactor.stop()
         
         if response.data is None:
             self.write('damntoken failed.')

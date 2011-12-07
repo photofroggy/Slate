@@ -118,7 +118,7 @@ class Bot(object):
                 pass
             
             #self.logger.warning('Failed to retrieve login codes.', showns=False)
-            self.logger.message('Exiting...', showns=False)
+            self.logger.message('** Exiting...', showns=False)
             self.logger.stop()
             self.logger.push(0)
             return False
@@ -132,10 +132,19 @@ class Bot(object):
         self.users.load(owner=self.config.owner)
         
         self.client.start()
-        reactor.run()
+        
+        try:
+            reactor.run()
+        except Exception:
+            pass
     
     def teardown(self):
-        self.logger.message('Exiting...', showns=False)
+        try:
+            reactor.stop()
+        except Exception:
+            pass
+        
+        self.logger.message('** Exiting...', showns=False)
         self.logger.stop()
         self.logger.push(0)
     
@@ -144,7 +153,7 @@ class Bot(object):
             sys.stdout.write(msg)
             sys.stdout.flush()
         except Exception as e:
-            self.logger.warning('Failed to display a message...')
+            self.logger.warning('>> Failed to display a message...')
         
 
 

@@ -69,8 +69,14 @@ def run(args, restartable=True):
             stddebug=log.debug
         )
         
-        if not restartable:
-            return
+        def stop(obj):
+            try:
+                reactor.stop()
+            except Exception:
+                pass
+        
+        c.d.addCallback(stop)
+        return
     
     if args == 'exit':
         return

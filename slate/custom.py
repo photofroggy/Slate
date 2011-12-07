@@ -72,15 +72,7 @@ class Client(dAmnClient):
         self.owner = 'noone'
     
     def teardown(self):
-        try:
-            reactor.stop()
-        except Exception:
-            pass
-        
-        try:
-            self._teardown()
-        except Exception:
-            pass
+        self._teardown()
         
     def logger(self, msg, ns=None, showns=True, mute=False, pkt=None, ts=None):
         """ Write output to stdout. """

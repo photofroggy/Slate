@@ -19,4 +19,5 @@
     * Hidden initial channel property messages.
     * Improved the flow of start-up and first-time config.
     * Made the core application teardown the logger on exit.
+    * Updated dAmnViper.
      
