@@ -47,6 +47,8 @@ class ChannelLogger(logging.ThreadedLogger):
             return
         if showns is None:
             showns = self.default_sns
+        if len(message) > 200:
+            message = '>> Message too long. See log for details.'
         
         ns = ns or self.default_ns
         mns = '{0}|'.format(ns) if showns else ''

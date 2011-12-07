@@ -20,4 +20,6 @@
     * Improved the flow of start-up and first-time config.
     * Made the core application teardown the logger on exit.
     * Updated dAmnViper.
+    * Cleaned up code a little.
+    * Usable on a basic level. Making first release!
      

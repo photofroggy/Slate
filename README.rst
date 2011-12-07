@@ -4,11 +4,72 @@ Slate
 
 Slate is a bot for **dAmn**, deviantART's chatrooms.
 
-Slate is built in **Python** using **reflex**, **stutter**, and **dAmn Viper**.
+Slate is built in **Python** using
+**`reflex <https://photofroggy.github.com/reflex/index.html>`_**,
+**`stutter <https://github.com/photofroggy/stutter>`_**, and
+**`dAmn Viper <https://photofroggy.github.com/dAmnViper/index.html>`_**.
 
-----------
+================
+Setting up slate
+================
+Setting up Slate is pretty simple.
+
+------------
+Requirements
+------------
+To run **Slate**, you must first install *Python 2.7 or better* and
+*twisted 11.0.0* or better. These two things are required for Slate to work
+properly.
+
+------------------
+Download
+------------------
+If you have git installed, you can download the current revision of slate via
+the terminal or command line. All you have to do is cd to the folder you want
+to have slate stored in, and type the following::
+    
+    git clone git@github.com:photofroggy/Slate.git
+
+Otherwise, you can download the latest release at *website*.
+
+------------------
+Setting up the bot
+------------------
+The best way to set up slate is to just run it and follow the instructions the
+program gives you. If you installed slate's requirements properly, you should
+be able to do this from the terminal or command line using the following
+command when you are in the bot's folder::
+    
+    launch.py
+
+You will then be asked to configure the bot.
+
+Note that part of this involves authorizing the application with the deviantART
+account you wish to use the bot with. To do this you will have to copy a link
+that the program will give you, and visit this in your web browser while logged
+in as your bot. Then confirm that slate is allowed to access your account.
+
+This is a bit arduous, but there isn't really a good way around this.
+
+---------------
+Running the bot
+---------------
+As noted above, to run the bot, all you have to do is run the file `launch.py`.
+
+---------------------
+Reconfiguring the bot
+---------------------
+To reconfigure the bot, you can run the file `launch.py` with an additional
+argument `--config`. So, for example, in the command line you would type::
+    
+    launch.py --config
+
+From here you can change your bot's setup.
+
+
+==========
 DISCLAIMER
-----------
+==========
 
 Disclaimer::
 

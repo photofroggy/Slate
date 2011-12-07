@@ -11,10 +11,8 @@ from reflex import data
 class Binding(data.Binding):
     """Command Binding class."""
     
-    def __init__(self, method, options, sub=False):
+    def __init__(self, method, options):
         super(Binding, self).__init__(method, 'command', options)
-        self.subs = {}
-        self.sub = sub
         
         cmd = self.options['cmd'] if isinstance(self.options['cmd'], str) else self.options['cmd'][0]
         
@@ -22,18 +20,22 @@ class Binding(data.Binding):
             raise ValueError
         
         self.type = '<event[\'command:{0}\'].binding>'.format(cmd)
+        
+        self.group = 'Guests'
+        self.level = 25
     
-    '''
     def set_privs(self, groups):
-        grp = 'Guests'
+        grp = self.group
+        
         if len(self.options) > 1:
-            grp = self.options.get('priv', 'Guests')
-            if grp != 'Guests':
+            grp = self.options.get('priv', self.group)
+            if grp != self.group:
                 grp = groups.find(grp, True)
                 if grp is None:
-                    grp = 'Guests'
+                    grp = self.group
+        
         self.group = grp
-        self.level = groups.find(grp)'''
+        self.level = groups.find(grp)
 
 
 

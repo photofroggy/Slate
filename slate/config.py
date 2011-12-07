@@ -119,21 +119,21 @@ class Configure:
     def menu(self):
         while True:
             self.data.load()
-            self.write('Current configuration:')
+            self.write('** Current configuration:')
             # Display config data!
             info = self.data.api
-            self.write('Bot {0} = {1}'.format('username', info.username))
-            self.write('Bot {0} = {1}'.format('owner', self.data.owner))
-            self.write('Bot {0} = {1}'.format('trigger', self.data.trigger))
-            self.write('Autojoin:')
+            self.write('** Bot {0} = {1}'.format('username', info.username))
+            self.write('** Bot {0} = {1}'.format('owner', self.data.owner))
+            self.write('** Bot {0} = {1}'.format('trigger', self.data.trigger))
+            self.write('** Autojoin:')
             self.write(', '.join(self.data.autojoin))
             self.write('')
-            self.write('Choose one of the following options:')
-            self.write('user - authorize the bot with a different account.')
-            self.write('info - Set the bot\'s owner and trigger.')
-            self.write('autojoin - Set the bot\'s autojoin list.')
-            self.write('all - Set all configuration data.')
-            self.write('exit - Leave the configuration file.')
+            self.write('** Choose one of the following options:')
+            self.write('*** user - authorize the bot with a different account.')
+            self.write('*** info - Set the bot\'s owner and trigger.')
+            self.write('*** autojoin - Set the bot\'s autojoin list.')
+            self.write('*** all - Set all configuration data.')
+            self.write('*** exit - Leave the configuration file.')
             ins = ''
             
             while not ins in ('all', 'autojoin', 'exit', 'info', 'user'):
@@ -160,10 +160,10 @@ class Configure:
                 
     
     def run_all(self, redirect):
-        self.write('Please fill in the following appropriately.')
+        self.write('** Please fill in the following appropriately')
         self.get_info()
         self.get_autojoin()
-        self.write('Ok! Now we need to authorize!')
+        self.write('** Ok! Now we need to authorize!')
         return self.get_user(redirect)
     
     def get_user(self, redirect):
@@ -172,12 +172,12 @@ class Configure:
             cache = json.loads(file.read())
             file.close()
         except IOError:
-            self.debug('>> No cache data stored.')
+            self.debug('>> No cache data stored')
             self.d = defer.Deferred()
             self.start_auth(redirect)
             return self.d
         
-        user = get_input('> Bot username: ')
+        user = get_input('> Bot account username: ')
         
         try:
             data = cache[user.lower()]
@@ -190,8 +190,8 @@ class Configure:
             self.debug('** Found cached data for {0}{1}.'.format(data['symbol'], data['username']))
             self.save()
         except KeyError:
-            self.write('>> No cached data stored for \'{0}\'.'.format(user))
-            self.write('>> Requires authorization.')
+            self.write('>> No cached data stored for \'{0}\''.format(user))
+            self.write('>> Requires authorization')
             self.d = defer.Deferred()
             self.start_auth(redirect)
             return self.d
@@ -216,7 +216,7 @@ class Configure:
             state=self.state
         )
         # Send user there, somehow...
-        self.write('Visit the following URL to authorize this app:')
+        self.write('** Please visit the following URL to authorize this app:')
         sys.stdout.write('{0}\n'.format(url))
         sys.stdout.flush()
         
@@ -227,14 +227,18 @@ class Configure:
         """ Called when the app is successfully authorized. """
         if not response['status']:
             resp = response['data']
+            
             if 'error' in resp.args:
                 self.write('>> Auth failed: {0}\n'.format(resp.args['error_description'][0]))
             else:
                 self.write('>> Authorization failed.\n')
                 self.debug('>> {0}\n'.format(response['data']))
+            
             self._reactor.stop()
             self.d.callback({'status': False, 'response': response})
             return response
+        
+        self.write('** Application authorized. Retrieving access token')
         
         self.data.api.code = self.api.auth_code
         self.data.save()
@@ -257,7 +261,7 @@ class Configure:
             self.d.callback({'status': False, 'response': response})
             return response
         
-        self.write('Got an access token!')
+        self.write('** Got an access token!')
         self.data.api.token = self.api.token
         self.data.api.refresh = self.api.refresh_token
         self.data.save()
@@ -267,7 +271,7 @@ class Configure:
     
     def grantFailure(self, response):
         """ Called when the app is refused access to the API. """
-        self.write('Failed to get an access token.')
+        self.write('>> Failed to get an access token.')
         self._reactor.stop()
         self.d.callback({'status': False, 'response': response})
         return response
@@ -276,7 +280,7 @@ class Configure:
         """ Handle the response to whoami API call. """
         
         if not 'username' in response.data:
-            self.write('Whoami failed.')
+            self.write('>> Whoami failed.')
             self._reactor.stop()
             self.d.callback({'status': False, 'response': response})
             return response
@@ -286,21 +290,21 @@ class Configure:
         self.data.api.symbol = symbol
         self.data.api.username = username
         self.data.save()
-        self.write('Authorized account {0}{1}'.format(symbol, username))
+        self.write('** Authorized account {0}{1}'.format(symbol, username))
         self.api.user_damntoken().addCallback(self.damntoken)
     
     def damntoken(self, response):
         """ Handle the response to whoami API call. """
         
         if response.data is None:
-            self.write('damntoken failed.')
-            self.debug('debug data:')
+            self.write('>> damntoken failed.')
+            self.debug('>> debug data:')
             self.debug(response)
             self.d.callback({'status': False, 'response': response})
             return response
         
         self.data.api.damntoken = response.data['damntoken']
-        self.write('Retrieved authtoken')
+        self.write('** Retrieved authtoken')
         self.save()
         self.cache()
         self.d.callback({'status': True, 'response': response})
@@ -311,11 +315,11 @@ class Configure:
             setattr(self.data, option, get_input('> Bot ' + option + ': '))
     
     def get_autojoin(self):
-        self.write( 'Next we need to know which channels you want your' )
-        self.write( 'bot to join on startup. Please enter a list of' )
-        self.write( 'channels below, separated by commas. Each channel' )
-        self.write( 'must begin with a hash (#) or chat:. Leave blank' )
-        self.write( 'to use the default (#Botdom).' )
+        self.write( '** Next we need to know which channels you want your' )
+        self.write( '** bot to join on startup. Please enter a list of' )
+        self.write( '** channels below, separated by commas. Each channel' )
+        self.write( '** must begin with a hash (#) or chat:. Leave blank' )
+        self.write( '** to use the default (#Botdom).' )
     
         aj = get_input('> ', True)
         if aj:
@@ -329,7 +333,7 @@ class Configure:
     def save(self):
         self.data.save()
         
-        self.write( 'Configuration file saved!' )
+        self.write( '** Configuration file saved!' )
     
     def cache(self):
         try:

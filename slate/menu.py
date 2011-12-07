@@ -20,14 +20,18 @@ from slate.misc_lib import get_input
 
 def run(args, restartable=True):
     args = args[2:].lower()
+    from_menu = False
     if not args in ('bot', 'debug', 'config', 'exit') or args == 'menu':
         restartable = False
+        from_menu = True
+        
         sys.stdout.write('===========> Main Menu <============\n>>> Welcome!\n>>> Please select an option!\n')
         sys.stdout.write('>> Bot - Run the bot.\n')
         sys.stdout.write('>> Debug - Run the bot in debug mode.\n')
         sys.stdout.write('>> Config - Configure the bot.\n')
         sys.stdout.write('>> Exit - Close this program.\n')
         sys.stdout.flush()
+        
         while not args in ('bot', 'debug', 'config', 'exit'):
             args = get_input().lower()
             
@@ -69,13 +73,21 @@ def run(args, restartable=True):
             stddebug=log.debug
         )
         
-        def stop(obj):
-            try:
-                reactor.stop()
-            except Exception:
-                pass
+        if c.d is not None:
+            
+            def stop(obj, restartable):
+                try:
+                    reactor.stop()
+                except Exception:
+                    pass
+                
+                if restartable:
+                    run('--menu', False)
         
-        c.d.addCallback(stop)
+            c.d.addCallback(stop, restartable)
+            return
+        
+        run('--menu', False)
         return
     
     if args == 'exit':

@@ -26,7 +26,7 @@ class Bot(object):
     
     class platform:
         """ Information about the slate platform. """
-        name = 'slate'
+        name = 'Slate'
         version = 1
         state = 'Alpha'
         build = 1
@@ -35,7 +35,7 @@ class Bot(object):
         author = 'photofroggy'
     
     config = None
-    logger = None
+    log = None
     client = None
     events = None
     agent = None
@@ -56,31 +56,24 @@ class Bot(object):
         self.populate_objects()
         
         if debug:
-            self.logger.set_level(logging.LEVEL.DEBUG)
+            self.log.set_level(logging.LEVEL.DEBUG)
         
-        self.logger.start()
+        self.log.start()
         
-        self.agent = 'slate/{0}/{1}.{2} (dAmnViper/{3}/{4}.{5}; reflex/1; stutter/1) OS'.format(
-            self.platform.stamp,
-            self.platform.version,
-            self.platform.build,
-            self.client.platform.stamp,
-            self.client.platform.version,
-            self.client.platform.build
-        )
+        self.hello()
         
-        self.client.agent = self.agent
+        self.set_agent()
         
         self.start_configure()
     
     def populate_objects(self):
         self.config = Settings()
-        self.logger = ChannelLogger(stdout=self.write)
-        self.users = UserManager(stdout=self.logger.message, stddebug=self.logger.debug)
-        self.events = EventManager(stdout=self.logger.message, stddebug=self.logger.debug)
+        self.log = ChannelLogger(stdout=self.write)
+        self.users = UserManager(stdout=self.log.message, stddebug=self.log.debug)
+        self.events = EventManager(stdout=self.log.message, stddebug=self.log.debug)
         self.client = Client(
-            stdout=self.logger.message,
-            stddebug=self.logger.debug,
+            stdout=self.log.message,
+            stddebug=self.log.debug,
             _events=self.events,
             _teardown=self.teardown
         )
@@ -98,8 +91,8 @@ class Bot(object):
                 reactor,
                 '110', '605c4a06216380fbdff26228c53cf610',
                 agent=self.agent,
-                stdout=self.logger.message,
-                stddebug=self.logger.debug
+                stdout=self.log.message,
+                stddebug=self.log.debug
             )
             
             if c.d is not None:
@@ -108,19 +101,36 @@ class Bot(object):
         
         self.configured({'status': True, 'response': None})
     
+    def set_agent(self):
+        self.agent = 'slate/{0}/{1}.{2} (dAmnViper/{3}/{4}.{5}; reflex/{6}/{7}.{8}; stutter/1) OS'.format(
+            self.platform.stamp,
+            self.platform.version,
+            self.platform.build,
+            self.client.platform.stamp,
+            self.client.platform.version,
+            self.client.platform.build,
+            self.events.info.stamp,
+            self.events.info.version,
+            self.events.info.build
+        )
+        
+        self.client.agent = self.agent
+    
+    def hello(self):
+        """ Greet the user, dawg. """
+        self.log.message('** Welcome to {0} {1}.{2} {3}!'.format(
+            self.platform.name,
+            self.platform.version,
+            self.platform.build,
+            self.platform.state
+        ), showns=False)
+        self.log.message('** Created by photofroggy.', showns=False)
+    
     def configured(self, response):
         self.config.load()
         
         if response['status'] is False or self.config.api.username is None:
-            try:
-                reactor.stop()
-            except Exception:
-                pass
-            
-            #self.logger.warning('Failed to retrieve login codes.', showns=False)
-            self.logger.message('** Exiting...', showns=False)
-            self.logger.stop()
-            self.logger.push(0)
+            self.teardown()
             return False
         
         self.client.user.username = self.config.api.username
@@ -144,16 +154,16 @@ class Bot(object):
         except Exception:
             pass
         
-        self.logger.message('** Exiting...', showns=False)
-        self.logger.stop()
-        self.logger.push(0)
+        self.log.message('** Exiting...', showns=False)
+        self.log.stop()
+        self.log.push(0)
     
     def write(self, msg, *args, **kwargs):
         try:
             sys.stdout.write(msg)
             sys.stdout.flush()
         except Exception as e:
-            self.logger.warning('>> Failed to display a message...')
+            self.log.warning('>> Failed to display a message...', showns=False)
         
 
 
