@@ -4,10 +4,7 @@ Slate
 
 Slate is a bot for **dAmn**, deviantART's chatrooms.
 
-Slate is built in **Python** using
-**`reflex <https://photofroggy.github.com/reflex/index.html>`_**,
-**`stutter <https://github.com/photofroggy/stutter>`_**, and
-**`dAmn Viper <https://photofroggy.github.com/dAmnViper/index.html>`_**.
+Slate is built in **Python** using **reflex**, **stutter**, and **dAmn Viper**.
 
 ================
 Setting up slate
