@@ -225,29 +225,52 @@ class Configure:
     
     def authSuccess(self, response):
         """ Called when the app is successfully authorized. """
-        self.write('Got an auth code!')
-        # sys.stdout.write('>> debug:\n')
-        # sys.stdout.write('>> {0}\n'.format(response.args))
+        if not response['status']:
+            resp = response['data']
+            if 'error' in resp.args:
+                self.write('>> Auth failed: {0}\n'.format(resp.args['error_description'][0]))
+            else:
+                self.write('>> Authorization failed.\n')
+                self.debug('>> {0}\n'.format(response['data']))
+            self._reactor.stop()
+            self.d.callback({'status': False, 'response': response})
+            return response
+        
         self.data.api.code = self.api.auth_code
         self.data.save()
         d = self.api.grant(req_state=self.state)
         d.addCallbacks(self.grantSuccess, self.grantFailure)
+        
+        return response
     
-    def authFailure(self, response):
+    '''def authFailure(self, response):
         """ Called when authorization fails. """
         self.write('Authorization failed.')
         self.debug('Printing debug data...')
         self.debug('{0}'.format(response))
-        self.d.callback({'status': False, 'response': response})
+        self.d.callback({'status': False, 'response': response})'''
     
     def grantSuccess(self, response):
         """ Called when the app is granted access to the API. """
+        if not response['status']:
+            self.write('>> Failed to get an access token.\n')
+            
+            try:
+                self.write('>> {0}\n'.format(response['data'].data['error_description']))
+            except KeyError:
+                pass
+            
+            self._reactor.stop()
+            self.d.callback({'status': False, 'response': response})
+            return response
+        
         self.write('Got an access token!')
         self.data.api.token = self.api.token
-        self.data.api.refresh = response.data['refresh_token']
+        self.data.api.refresh = response.api.refresh_token
         self.data.save()
         # whoami?
         self.api.user_whoami().addCallback(self.whoami)
+        return response
     
     def grantFailure(self, response):
         """ Called when the app is refused access to the API. """
@@ -256,20 +279,16 @@ class Configure:
         #self.debug(response)
         self._reactor.stop()
         self.d.callback({'status': False, 'response': response})
+        return response
     
     def whoami(self, response):
         """ Handle the response to whoami API call. """
-        #sys.stdout.write('=' * 80)
-        #sys.stdout.write('\n')
         
         if not 'username' in response.data:
-            self.write('whoami failed.')
-            self.debug('Debug data:')
-            self.debug(response.data)
+            self.write('Whoami failed.')
             self._reactor.stop()
             self.d.callback({'status': False, 'response': response})
-            # damntoken?
-            return
+            return response
         
         symbol = response.data['symbol']
         username = response.data['username']
@@ -288,13 +307,14 @@ class Configure:
             self.debug('debug data:')
             self.debug(response)
             self.d.callback({'status': False, 'response': response})
-            return
+            return response
         
         self.data.api.damntoken = response.data['damntoken']
         self.write('Retrieved authtoken')
         self.save()
         self.cache()
         self.d.callback({'status': True, 'response': response})
+        return response
     
     def get_info(self):
         for option in ['owner', 'trigger']:

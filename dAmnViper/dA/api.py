@@ -79,7 +79,7 @@ class Request(object):
         self.start_request()
     
     def start_request(self):
-        """ Send the token request to deviantART. """
+        """ Send the api request to deviantART. """
         agent = Agent(self._reactor)
         d = agent.request('POST', self.url, Headers({'User-Agent': [self.agent]}), None)
         d.addCallback(self.received_response)
@@ -117,19 +117,17 @@ class APIClient(object):
         this package.
     """
     
-    def __init__(self, _reactor, client_id, client_secret, auth_code=None, token=None, agent='dAmnViper/dA/api/apiclient'):
+    def __init__(self, _reactor, client_id, client_secret, auth_code=None, token=None, refresh_token=None, agent='dAmnViper/dA/api/apiclient', api_url=None):
         self._reactor = _reactor
         self.client_id = client_id
         self.client_secret = client_secret
         self.auth_code = auth_code
         self.token = token
+        self.refresh_token = refresh_token
         self.agent = agent
-        # Auth deferred
-        self._authd = None
-        self._grantd = None
         # URL stuff
         self.draft = 'draft15'
-        self.api_url = 'https://www.deviantart.com/'
+        self.api_url = api_url or 'https://www.deviantart.com/'
         # Custom? Maybe
         self.init()
     
@@ -147,19 +145,19 @@ class APIClient(object):
         # Start serving requests.
         d = client.serve()
         # Defer the handling or whatever.
-        d.addCallbacks(self._authResponse)
-        # Make a deferred to be used externally.
-        self._authd = defer.Deferred()
-        return self._authd
+        d.addCallback(self._authResponse)
+        return d
     
     def _authResponse(self, response):
         """ Process oAuth responses. """
-        if 'code' in response.args:
+        if 'error' in response.args:
+            return {'status': False, 'data': response}
+            
+        if 'code' in response.args and response.args['code'][0]:
             self.auth_code = response.args['code'][0]
-            self._authd.callback(response)
-            return
+            return {'status': True, 'data': response}
         
-        self._authd.errback(response)
+        return {'status': False, 'data': response}
     
     def url(self, klass, method=None, api='api', **kwargs):
         """ Create an API URL based on the input.
@@ -183,9 +181,9 @@ class APIClient(object):
             '' if method is None else '/{0}'.format(method),
             '' if not args else '?{0}'.format(urlencode(args)))
     
-    def requiresToken(self):
+    def requiresToken(self, refresh=False):
         """ If the token is not set, raise a ``ValueError``. """
-        if self.token is None:
+        if self.token is None or (refresh and self.refresh_token is None):
             raise ValueError('token required for this method')
     
     def sendRequest(self, url, response_obj=None):
@@ -220,23 +218,35 @@ class APIClient(object):
             state=req_state,
             code=self.auth_code
         ))
-        d.addCallbacks(self.handle_grant, self.handle_grant_fail)
-        self._grantd = defer.Deferred()
+        d.addCallback(self.handle_grant)
         
-        return self._grantd
+        return d
+    
+    def refresh(self, refresh_token=None, req_state=None):
+        """ Request a new grant token using a refresh token. """
+        self.refresh_toke = refresh_token or self.refresh_token
+        
+        self.requiresToken(True)
+        
+        d = self.sendRequest(self.url('token', api='oauth2',
+            client_id=self.client_id,
+            client_secret=self.client_secret,
+            grant_type='refresh_token',
+            state=req_state,
+            refresh_token=self.refresh_token
+        ))
+        
+        d.addCallback(self.handle_grant)
+        return d
     
     def handle_grant(self, response):
         """ Handle the response to the grant api call. """
         if response.data is not None and response.data['status'] == 'success':
             self.token = response.data['access_token']
-            self._grantd.callback(response)
-            return
+            self.refresh_token = response.data['refresh_token']
+            return {'status': True, 'data': response}
         
-        self._grantd.errback(response)
-    
-    def handle_grant_fail(self, err):
-        """ When the grant token request fails, handle it here. """
-        sefl._grantd.errback(err)
+        return {'status': False, 'data': response}
     
     def placebo(self, token=None):
         """ Check that the access token is still valid. """
