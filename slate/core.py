@@ -28,8 +28,8 @@ class Bot(object):
         """ Information about the slate platform. """
         name = 'Slate'
         version = 1
-        state = 'Alpha'
-        build = 1
+        state = 'Alpha (repo)'
+        build = 2
         stamp = '11122011-032934'
         series = 'Chip'
         author = 'photofroggy'

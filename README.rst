@@ -33,8 +33,10 @@ the terminal or command line. All you have to do is cd to the folder you want
 to have slate stored in, and type the following::
     
     git clone git@github.com:photofroggy/Slate.git
+    git checkout stable
 
-Otherwise, you can download the latest release at *website*.
+Otherwise, you can download the latest release on the
+`downloads page <https://github.com/photofroggy/Slate/downloads>`_.
 
 ------------------
 Setting up the bot
