@@ -11,6 +11,7 @@ class ExtensionBase(Reactor):
     
     def init(self, core):
         sefl.core = core
+        self.log = core.log
 
 
 

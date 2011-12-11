@@ -5,6 +5,7 @@
 
 
 import sys
+import platform
 from twisted.internet import reactor
 
 from stutter import logging
@@ -79,8 +80,8 @@ class Bot(object):
         )
         self.rules = RulesetBattery()
         self.exts = ReactorBattery()
-        self.rules.load_objects(self.events, rules)
-        self.exts.load_objects(self.events, extensions)
+        self.rules.load_objects(self.events, rules, core)
+        self.exts.load_objects(self.events, extensions, 'Extension', core)
     
     
     def start_configure(self):
@@ -103,7 +104,9 @@ class Bot(object):
         self.configured({'status': True, 'response': None})
     
     def set_agent(self):
-        self.agent = 'slate/{0}/{1}.{2} (dAmnViper/{3}/{4}.{5}; reflex/{6}/{7}.{8}; stutter/1) OS'.format(
+        uname = platform.uname()
+        name, release, version = uname[:3]
+        self.agent = 'slate/{0}/{1}.{2} (dAmnViper/{3}/{4}.{5}; reflex/{6}/{7}.{8}; stutter/1) {9} {10}'.format(
             self.platform.stamp,
             self.platform.version,
             self.platform.build,
@@ -112,7 +115,9 @@ class Bot(object):
             self.client.platform.build,
             self.events.info.stamp,
             self.events.info.version,
-            self.events.info.build
+            self.events.info.build,
+            '({0}; U; {1} {2}; en-GB; {3}) '.format(name, release, version, self.config.info.owner),
+            'Python/{0}.{1}'.format(sys.version_info[0], os.sys.version_info[1] )
         )
         
         self.client.agent = self.agent

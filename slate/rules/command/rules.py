@@ -9,7 +9,8 @@ from slate.rules.command import data
 
 class Ruleset(base.Ruleset):
     
-    def init(self):
+    def init(self, core):
+        self.users = core.users
         self.index = {}
     
     def bind(self, meth, event, **options):
@@ -46,7 +47,7 @@ class Ruleset(base.Ruleset):
             return None
         
         binding = data.Binding(meth, options)
-        # binding.set_privs(self.user.groups)
+        binding.set_privs(self.user.groups)
         self.mapref['command'].append(binding)
         self.index[cmd.lower()] = len(self.mapref['command']) - 1
         
@@ -94,7 +95,7 @@ class Ruleset(base.Ruleset):
                 self.index[name] = key
                 continue
     
-    def trigger(self, event, *args):
+    def trigger(self, event, dAmn):
         """Trigger a command."""
         try:
             if not event.trigger.lower() in self.index.keys():
@@ -104,9 +105,9 @@ class Ruleset(base.Ruleset):
             self.debug('>> Invalid command provided')
             return None
         
-        return self.run(self.mapref['command'][self.index[event.trigger.lower()]], event, *args)
+        return self.run(self.mapref['command'][self.index[event.trigger.lower()]], event, dAmn)
     
-    def run(self, binding, event, *args):
+    def run(self, binding, event, dAmn):
         """Attempt to run a command's event binding."""
         cmd = event.trigger.lower()
         
@@ -122,10 +123,11 @@ class Ruleset(base.Ruleset):
                 if not self.privd(data.user, binding.level, data.trigger):
                     return None
                 continue
+            
             if key == 'channel':
-                '''if dAmn.format_ns(str(option)).lower() == str(data.ns).lower():
+                if dAmn.format_ns(str(option)).lower() == str(data.ns).lower():
                     continue
-                return None'''
+                return None
                 continue
             
             try:
@@ -154,14 +156,14 @@ class Ruleset(base.Ruleset):
         sub = event.arguments(1)
         if sub == '?':
             if binding.options and binding.options['help']:
-                #dAmn.say(event.target, ': '.join([str(event.user), binding.options['help']]))
+                dAmn.say(event.target, ': '.join([str(event.user), binding.options['help']]))
                 return None
             
-            #dAmn.say(data.target, event.user+': There is no information for this command.')
+            dAmn.say(data.target, event.user+': There is no information for this command.')
             return None
         
-        '''if self.debug:
-            self._write('** Running command \''+data.trigger+'\' for '+str(data.user)+'.')'''
+        self.debug('** Running command \''+data.trigger+'\' for '+str(data.user)+'.')
+        
         try:
             binding.call(event, *args)
         except Exception as e:
@@ -174,7 +176,7 @@ class Ruleset(base.Ruleset):
         return None
     
     def privd(self, user, level, cmd):
-        return True
+        return self.users.has(user, level)
 
 
 # EOF

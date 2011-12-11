@@ -9,28 +9,31 @@
         ** just when working properly or well enough.
         * Fixed some typos.
         * Added an extension module and base class.
-        
+        * Updated user agent string.
+        * Added priv checking for commands.
+        * Modified extension base class a little.
+        * Edited core to search for classes called `Extension` in extension modules.
     
     Build 1 (11122011-032934) Chip
-    * First commit!
-    * Folder structure.
-    * Grabbing in viper, reflex and stutter.
-    * Grabbing in misc_lib.
-    * Got some api and config stuff going.
-    * Hooked up a channel logger.
-    * Hooked up a custom dAmn Client.
-    * Basically capable of signing in and logging chats already.
-    * Startup process made smoother.
-    * Hooking in the events system.
-    * Hooking in the user manager.
-    * Added some battery loading goodness.
-    * Hidden initial channel property messages.
-    * Improved the flow of start-up and first-time config.
-    * Made the core application teardown the logger on exit.
-    * Updated dAmnViper.
-    * Cleaned up code a little.
-    * Created setup.py.
-    * Usable on a basic level. Making first release!
-    * Fixed a pretty bad bug.
-    ** Startup didn't happen properly on firstrun.
+        * First commit!
+        * Folder structure.
+        * Grabbing in viper, reflex and stutter.
+        * Grabbing in misc_lib.
+        * Got some api and config stuff going.
+        * Hooked up a channel logger.
+        * Hooked up a custom dAmn Client.
+        * Basically capable of signing in and logging chats already.
+        * Startup process made smoother.
+        * Hooking in the events system.
+        * Hooking in the user manager.
+        * Added some battery loading goodness.
+        * Hidden initial channel property messages.
+        * Improved the flow of start-up and first-time config.
+        * Made the core application teardown the logger on exit.
+        * Updated dAmnViper.
+        * Cleaned up code a little.
+        * Created setup.py.
+        * Usable on a basic level. Making first release!
+        * Fixed a pretty bad bug.
+        ** Startup didn't happen properly on firstrun.
      
