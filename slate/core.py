@@ -97,6 +97,7 @@ class Bot(object):
             
             if c.d is not None:
                 c.d.addCallback(self.configured)
+                reactor.run()
                 return
         
         self.configured({'status': True, 'response': None})

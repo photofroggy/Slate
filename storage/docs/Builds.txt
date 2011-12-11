@@ -23,4 +23,6 @@
     * Cleaned up code a little.
     * Created setup.py.
     * Usable on a basic level. Making first release!
+    * Fixed a pretty bad bug.
+    ** Startup didn't happen properly on firstrun.
      

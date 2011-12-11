@@ -219,8 +219,6 @@ class Configure:
         self.write('** Please visit the following URL to authorize this app:')
         sys.stdout.write('{0}\n'.format(url))
         sys.stdout.flush()
-        
-        self._reactor.run()
         # Now we wait for the user's webbrowser to be redirected to our server.
     
     def authResponse(self, response):
@@ -308,7 +306,6 @@ class Configure:
         self.save()
         self.cache()
         self.d.callback({'status': True, 'response': response})
-        return response
     
     def get_info(self):
         for option in ['owner', 'trigger']:

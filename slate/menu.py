@@ -85,6 +85,7 @@ def run(args, restartable=True):
                     run('--menu', False)
         
             c.d.addCallback(stop, restartable)
+            reactor.run()
             return
         
         run('--menu', False)
