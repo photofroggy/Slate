@@ -30,7 +30,7 @@ class Bot(object):
         version = 1
         state = 'Alpha'
         build = 1
-        stamp = 'ddmmyyyy-hhmmss'
+        stamp = '11122011-032934'
         series = 'Chip'
         author = 'photofroggy'
     

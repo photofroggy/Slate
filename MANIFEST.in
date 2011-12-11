@@ -1,0 +1,8 @@
+include README.rst launch.py
+recursive-include reflex *.py
+recursive-include slate *.py
+recursive-include dAmnViper *.py
+recursive-include stutter *.py
+recursive-include extensions *.py
+recursive-include storage\docs *.txt
+

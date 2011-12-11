@@ -3,7 +3,7 @@
     This tells you the date of each build, and perhaps some brief details.
     The format for build names is "Build [build number] ([date]-[time(24hr)]) [Build series name]
 
-    Build 1 () Chip
+    Build 1 (11122011-032934) Chip
     * First commit!
     * Folder structure.
     * Grabbing in viper, reflex and stutter.
@@ -21,5 +21,6 @@
     * Made the core application teardown the logger on exit.
     * Updated dAmnViper.
     * Cleaned up code a little.
+    * Created setup.py.
     * Usable on a basic level. Making first release!
      
