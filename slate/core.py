@@ -77,10 +77,10 @@ class Bot(object):
             _events=self.events,
             _teardown=self.teardown
         )
-        self.rule_batt = RulesetBattery()
-        self.ext_batt = ReactorBattery()
-        self.rule_batt.load_objects(self.events, rules)
-        self.ext_batt.load_objects(self.events, extensions)
+        self.rules = RulesetBattery()
+        self.exts = ReactorBattery()
+        self.rules.load_objects(self.events, rules)
+        self.exts.load_objects(self.events, extensions)
     
     
     def start_configure(self):

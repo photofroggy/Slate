@@ -4,6 +4,12 @@
     The format for build names is "Build [build number] ([date]-[time(24hr)]) [Build series name]
 
     Build 2 () Chip
+        * Created a stable git branch.
+        ** Will commit to this branch regardless of actual releases,
+        ** just when working properly or well enough.
+        * Fixed some typos.
+        * Added an extension module and base class.
+        
     
     Build 1 (11122011-032934) Chip
     * First commit!

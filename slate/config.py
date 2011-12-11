@@ -96,7 +96,7 @@ class Configure:
         self.cachef = cache
         if not os.path.exists('./storage'):
             os.mkdir('./storage', 0o755)
-        self.write('Welcome to the configuration file!')
+        self.write('** Welcome to the configuration file!')
         
         self.data = Settings(self.file)
         
