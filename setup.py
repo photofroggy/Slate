@@ -20,7 +20,9 @@ setup(name='Slate-bot',
         'extensions'
     ],
     platforms=['Any']
-    '''classifiers=[
+)
+'''
+    classifiers=[
         'Natural Language :: English',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -29,9 +31,9 @@ setup(name='Slate-bot',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'License :: OSI Approved :: ISC License (ISCL)',
-        'Topic :: Software Development :: Libraries :: Application Frameworks'
-    ],'''
+        'Topic :: Software Development :: Libraries :: Application Frameworks'],
+    
     #long_description=""""""
-)
+)'''
 
 # EOF
