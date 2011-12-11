@@ -115,12 +115,12 @@ class Ruleset(object):
         a specific ruleset assigned to them.
     """
 
-    def __init__(self, args, mapref, stdout, stddebug):
+    def __init__(self, args, kwargs, mapref, stdout, stddebug):
         self.mapref = mapref
         self._write = stdout
         self.debug = stddebug
         
-        self.init(*args)
+        self.init(*args, **kwargs)
     
     def init(self, *args):
         """ init method.

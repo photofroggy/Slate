@@ -29,8 +29,10 @@ class Binding(data.Binding):
         
         if len(self.options) > 1:
             grp = self.options.get('priv', self.group)
+            
             if grp != self.group:
                 grp = groups.find(grp, True)
+                
                 if grp is None:
                     grp = self.group
         

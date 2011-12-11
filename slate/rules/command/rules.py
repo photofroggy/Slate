@@ -47,7 +47,7 @@ class Ruleset(base.Ruleset):
             return None
         
         binding = data.Binding(meth, options)
-        binding.set_privs(self.user.groups)
+        binding.set_privs(self.users.groups)
         self.mapref['command'].append(binding)
         self.index[cmd.lower()] = len(self.mapref['command']) - 1
         
@@ -120,7 +120,7 @@ class Ruleset(base.Ruleset):
                 continue
             
             if key == 'priv':
-                if not self.privd(data.user, binding.level, data.trigger):
+                if not self.privd(event.user, binding.group, event.trigger):
                     return None
                 continue
             
@@ -162,10 +162,10 @@ class Ruleset(base.Ruleset):
             dAmn.say(data.target, event.user+': There is no information for this command.')
             return None
         
-        self.debug('** Running command \''+data.trigger+'\' for '+str(data.user)+'.')
+        self.debug('** Running command \''+event.trigger+'\' for '+str(event.user)+'.')
         
         try:
-            binding.call(event, *args)
+            binding.call(event, dAmn)
         except Exception as e:
             log = self.debug
             log('>> Failed to execute command "{0}"!'.format(event.trigger))

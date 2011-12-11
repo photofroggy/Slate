@@ -15,6 +15,8 @@ from stutter import logging
 from reflex.data import Event
 from dAmnViper.base import dAmnClient
 
+from slate.rules.command.data import Command
+
 
 class ChannelLogger(logging.ThreadedLogger):
     """ Channel-concious logger.
@@ -95,6 +97,24 @@ class Client(dAmnClient):
     
     def pkt_generic(self, event):
         self._events.trigger(Event(event.name, event.arguments.items()), self)
+    
+    def pkt_recv_msg(self, event):
+        if not event.arguments['message'].lower().startswith(self.trigger):
+            return
+        
+        msg = event.arguments['message'][len(self.trigger):]
+        cmd, sp, msg = msg.partition(' ')
+        target = event.arguments['ns']
+        
+        if msg.startswith('#') or msg.startswith('@'):
+            target, sp, msg = msg.partition(' ')
+        
+        event.arguments['trigger'] = cmd
+        event.arguments['target'] = target
+        event.arguments['message'] = msg
+        
+        cobj = Command('command', event.arguments.items())
+        self._events.trigger(cobj, self)
 
 
 # EOF

@@ -28,6 +28,7 @@ class UserManager(object):
     def load(self, owner=None):
         if owner is not None:
             self.owner = owner
+            
         self.log('** Loading user data...')
         if not os.path.exists(self.file):
             self.log('>> No user data found! Setting default user list!')
@@ -39,6 +40,9 @@ class UserManager(object):
             self.map = json.loads(file.read())
             file.close()
             self.load_groups()
+        
+        self.remove(self.owner)
+        self.add(self.owner, 'owner')
         self.log('** User data loaded.')
     
     def save(self):
@@ -84,6 +88,7 @@ class UserManager(object):
             return user_priv
         
         priv = self.groups.find(group)
+        
         return user_priv >= priv
     
     def add(self, user, group):
@@ -153,10 +158,15 @@ class Groups:
     
     def find(self, group, name=False):
         group = group.lower()
-        for i in range(0, len(self.groups)):
-            names = [x.lower() for x in self.groups[i] if x is not None]
-            if group in names:
-                return i if not name else self.name(i)
+        
+        for i, grp in enumerate(self.groups):
+            for gname in grp[:2]:
+                if gname is None:
+                    continue
+                
+                if gname.lower() == group:
+                    return i if not name else gname
+                    
         return -1 if not name else None
     
     def name(self, num):

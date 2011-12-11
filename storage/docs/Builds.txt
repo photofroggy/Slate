@@ -13,6 +13,13 @@
         * Added priv checking for commands.
         * Modified extension base class a little.
         * Edited core to search for classes called `Extension` in extension modules.
+        * Added sytem module.
+        ** Added !agent command.
+        ** Added !quit command.
+        ** Added !about command.
+        * Fixed some minor bugs in reflex. Need to move fixes over.
+        * Fixed up some bugs in the config stuff.
+        * User config data was not being loaded at the right time.
     
     Build 1 (11122011-032934) Chip
         * First commit!

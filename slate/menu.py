@@ -74,6 +74,7 @@ def run(args, restartable=True):
         )
         
         if c.d is not None:
+            reactor.run()
             
             def stop(obj, restartable):
                 try:

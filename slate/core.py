@@ -5,6 +5,7 @@
 
 
 import sys
+import time
 import platform
 from twisted.internet import reactor
 
@@ -43,10 +44,11 @@ class Bot(object):
     
     debug = False
     restartable = False
-    close = True
+    close = False
     restart = False
     
     def __init__(self, debug=False, restartable=True):
+        self.platform.stamp = time.strftime('%d%m%Y-%H%M%S')
         self.debug = debug
         self.restartable = restartable
         
@@ -69,19 +71,20 @@ class Bot(object):
     
     def populate_objects(self):
         self.config = Settings()
-        self.log = ChannelLogger(stdout=self.write)
+        self.log = ChannelLogger(stdout=self.write, default_sns=False)
         self.users = UserManager(stdout=self.log.message, stddebug=self.log.debug)
+        self.users.load()
         self.events = EventManager(stdout=self.log.message, stddebug=self.log.debug)
         self.client = Client(
             stdout=self.log.message,
             stddebug=self.log.debug,
             _events=self.events,
-            _teardown=self.teardown
+            _teardown=self.teardown,
         )
-        self.rules = RulesetBattery()
-        self.exts = ReactorBattery()
-        self.rules.load_objects(self.events, rules, core)
-        self.exts.load_objects(self.events, extensions, 'Extension', core)
+        self.rules = RulesetBattery(stdout=self.log.message, stddebug=self.log.debug)
+        self.exts = ReactorBattery(stdout=self.log.message, stddebug=self.log.debug)
+        self.rules.load_objects(self.events, rules, core=self)
+        self.exts.load_objects(self.events, extensions, 'Extension', self)
     
     
     def start_configure(self):
@@ -116,8 +119,8 @@ class Bot(object):
             self.events.info.stamp,
             self.events.info.version,
             self.events.info.build,
-            '({0}; U; {1} {2}; en-GB; {3}) '.format(name, release, version, self.config.info.owner),
-            'Python/{0}.{1}'.format(sys.version_info[0], os.sys.version_info[1] )
+            '({0}; U; {1} {2}; en-GB; {3}) '.format(name, release, version, self.config.owner),
+            'Python/{0}.{1}'.format(sys.version_info[0], sys.version_info[1] )
         )
         
         self.client.agent = self.agent
@@ -155,6 +158,9 @@ class Bot(object):
             pass
     
     def teardown(self):
+        self.close = self.client.flag.close
+        self.restart = self.client.flag.restart
+        
         try:
             reactor.stop()
         except Exception:

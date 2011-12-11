@@ -91,16 +91,16 @@ class EventManager(object):
         """
         pass
     
-    def default_ruleset(self, *args):
+    def default_ruleset(self, *args, **kwargs):
         """ Revert rulesets to defaults.
             
             This method simply loads the default ruleset into the
             ``rules`` attribute. If any other rulesets were present,
             they will be lost.
         """
-        self.rules = {'default': self._rules(args, self.map, self._write, self.debug)}
+        self.rules = {'default': self._rules(args, kwargs, self.map, self._write, self.debug)}
     
-    def define_rules(self, event, ruleset, *args):
+    def define_rules(self, event, ruleset, *args, **kwargs):
         """ Define a ruleset.
             
             Input parameters:
@@ -118,7 +118,7 @@ class EventManager(object):
         """
         if not issubclass(ruleset, Ruleset):
             return False
-        self.rules[event] = ruleset(args, self.map, self._write, self.debug)
+        self.rules[event] = ruleset(args, kwargs, self.map, self._write, self.debug)
         return True
     
     def bind(self, method, event, **options):
@@ -477,7 +477,7 @@ class RulesetBattery(PackageBattery):
     
     def load_object(self, manager, module, cls, *args, **kwargs):
         rulename = str(module.__name__).split('.')[-1]
-        manager.define_rules(rulename, getattr(module, cls), *args)
+        manager.define_rules(rulename, getattr(module, cls), *args, **kwargs)
         self.loaded[rulename] = 1
 
 # EOF

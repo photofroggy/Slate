@@ -157,6 +157,17 @@ class Configure:
             
             if ins == 'user':
                 self.get_user('http://localhost:{0}'.format(self.port))
+                '''
+                if self.d is not None:
+                    
+                    def stop(obj):
+                        try:
+                            self._reactor.stop()
+                        except:
+                            pass
+                        self.d = None
+                    
+                    self.d.addCallback(stop)'''
                 
     
     def run_all(self, redirect):
