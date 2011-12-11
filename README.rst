@@ -32,8 +32,7 @@ If you have git installed, you can download the current revision of slate via
 the terminal or command line. All you have to do is cd to the folder you want
 to have slate stored in, and type the following::
     
-    git clone git@github.com:photofroggy/Slate.git
-    git checkout stable
+    git clone -branch stable git@github.com:photofroggy/Slate.git
 
 Otherwise, you can download the latest release on the
 `downloads page <https://github.com/photofroggy/Slate/downloads>`_.

@@ -48,7 +48,7 @@ class Bot(object):
     restart = False
     
     def __init__(self, debug=False, restartable=True):
-        self.platform.stamp = time.strftime('%d%m%Y-%H%M%S')
+        self.platform.stamp = '11122011-210028' # time.strftime('%d%m%Y-%H%M%S')
         self.debug = debug
         self.restartable = restartable
         
@@ -108,7 +108,7 @@ class Bot(object):
     
     def set_agent(self):
         uname = platform.uname()
-        name, release, version = uname[:3]
+        release, name, version = uname[:3]
         self.agent = 'slate/{0}/{1}.{2} (dAmnViper/{3}/{4}.{5}; reflex/{6}/{7}.{8}; stutter/1) {9} {10}'.format(
             self.platform.stamp,
             self.platform.version,

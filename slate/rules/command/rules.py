@@ -125,7 +125,7 @@ class Ruleset(base.Ruleset):
                 continue
             
             if key == 'channel':
-                if dAmn.format_ns(str(option)).lower() == str(data.ns).lower():
+                if dAmn.format_ns(str(option)).lower() == str(event.ns).lower():
                     continue
                 return None
                 continue
@@ -143,6 +143,7 @@ class Ruleset(base.Ruleset):
                     continue
             except Exception:
                 pass
+            
             # Are they the same type?
             if type(item) != type(value):
                 return None

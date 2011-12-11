@@ -97,11 +97,6 @@ class UserManager(object):
             return False
         
         user, group = user.lower(), group.lower()
-        if user == self.owner.lower():
-            return False
-        
-        if group == 'owner':
-            return False
         
         group = self.groups.find(group, True)
         if group is None:
@@ -125,8 +120,6 @@ class UserManager(object):
             return False
         
         user = user.lower()
-        if user == self.owner.lower():
-            return False
         
         group = self.find(user)
         if group == 1:
@@ -160,7 +153,7 @@ class Groups:
         group = group.lower()
         
         for i, grp in enumerate(self.groups):
-            for gname in grp[:2]:
+            for gname in grp:
                 if gname is None:
                     continue
                 

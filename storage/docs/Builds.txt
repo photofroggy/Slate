@@ -20,6 +20,7 @@
         * Fixed some minor bugs in reflex. Need to move fixes over.
         * Fixed up some bugs in the config stuff.
         * User config data was not being loaded at the right time.
+        * Updated git commands in README
     
     Build 1 (11122011-032934) Chip
         * First commit!
