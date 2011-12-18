@@ -13,7 +13,6 @@ class ExtensionBase(Reactor):
         self.core = core
         self.log = core.log
         super(ExtensionBase, self).__init__(manager, core)
-        self.name = __file__.split('.')[1].replace('_', ' ')
 
 
 

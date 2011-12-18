@@ -17,6 +17,9 @@
         ** Added !agent command.
         ** Added !quit command.
         ** Added !about command.
+        * Added dAmn module.
+        ** Added !join command.
+        ** Added !part command.
         * Fixed some minor bugs in reflex. Need to move fixes over.
         * Fixed up some bugs in the config stuff.
         * User config data was not being loaded at the right time.

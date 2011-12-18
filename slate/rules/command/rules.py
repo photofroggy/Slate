@@ -121,6 +121,7 @@ class Ruleset(base.Ruleset):
             
             if key == 'priv':
                 if not self.privd(event.user, binding.group, event.trigger):
+                    self.debug('>> {0} tried to trigger command {1}.'.format(event.user, cmd))
                     return None
                 continue
             
@@ -128,7 +129,6 @@ class Ruleset(base.Ruleset):
                 if dAmn.format_ns(str(option)).lower() == str(event.ns).lower():
                     continue
                 return None
-                continue
             
             try:
                 # Process event item

@@ -110,7 +110,7 @@ class Client(dAmnClient):
             target, sp, msg = msg.partition(' ')
         
         event.arguments['trigger'] = cmd
-        event.arguments['target'] = target
+        event.arguments['target'] = self.format_ns(target)
         event.arguments['message'] = msg
         
         cobj = Command('command', event.arguments.items())

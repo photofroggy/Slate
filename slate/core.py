@@ -48,7 +48,7 @@ class Bot(object):
     restart = False
     
     def __init__(self, debug=False, restartable=True):
-        self.platform.stamp = '11122011-210028' # time.strftime('%d%m%Y-%H%M%S')
+        self.platform.stamp = time.strftime('%d%m%Y-%H%M%S')
         self.debug = debug
         self.restartable = restartable
         
