@@ -11,6 +11,7 @@ class Extension(ExtensionBase):
     def init(self, core):
         self.bind(self.join, 'command', cmd='join', priv='Operators')
         self.bind(self.part, 'command', cmd='part', priv='Operators')
+        self.bind(self.refresh, 'command', cmd='refresh', priv='Owner')
         #self.bind(self.agent, 'command', cmd='agent', priv='Guests')
         #self.bind(self.quit, 'command', cmd='quit', priv='Owner')
         
@@ -40,6 +41,11 @@ class Extension(ExtensionBase):
         
         for chan in ns:
             dAmn.part(chan)
+    
+    def refresh(self, cmd, dAmn):
+        dAmn.say(cmd.ns, '{0}: Refreshing dAmn connection...'.format(cmd.user))
+        dAmn.flag.disconnecting = True
+        dAmn.disconnect()
         
     def clist(self, cmd, dAmn):
         chans = cmd.arguments(finish=True, sequence=True)

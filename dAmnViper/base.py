@@ -388,6 +388,7 @@ class ChatClient(IChatClient):
         
         if not self.flag.quitting or self.flag.reconnect:
             self.connection.attempts = 1
+            self.flag.reconnect = False
             self.logger('** Attempting to reconnect...', showns=False)
             self.makeConnection()
             return
@@ -395,6 +396,7 @@ class ChatClient(IChatClient):
         if self.flag.retry:
             self.logger('** Attempting to connect again...', showns=False)
             self.connection.attempts+= 1
+            self.flag.retry = False
             self.makeConnection()
             return
         

@@ -20,10 +20,13 @@
         * Added dAmn module.
         ** Added !join command.
         ** Added !part command.
+        ** Added !refresh command.
         * Fixed some minor bugs in reflex. Need to move fixes over.
         * Fixed up some bugs in the config stuff.
         * User config data was not being loaded at the right time.
         * Updated git commands in README
+        * Fixed some bugs in viper. Need to shift those over to viper repo.
+        ** Persist method was messed up a little, bitches.
     
     Build 1 (11122011-032934) Chip
         * First commit!
