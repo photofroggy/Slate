@@ -9,6 +9,7 @@ import os
 import sys
 import time
 import os.path
+from threading import BoundedSemaphore
 from twisted.internet import reactor
 
 from stutter import logging
@@ -29,6 +30,8 @@ class ChannelLogger(logging.ThreadedLogger):
         super(ChannelLogger, self).__init__(save_folder='./storage/logs', *args, **kwargs)
         self.default_ns = default_ns or '~Global'
         self.default_sns = default_sns
+        self.mutes = []
+        self.mlock = BoundedSemaphore()
     
     def _fname(self, timestamp, ns=None, showns=None):
         """ Return a file name based on the given input. """
@@ -49,12 +52,36 @@ class ChannelLogger(logging.ThreadedLogger):
             return
         if showns is None:
             showns = self.default_sns
-        if len(message) > 200:
+        if len(message) > 500:
             message = '>> Message too long. See log for details.'
         
         ns = ns or self.default_ns
+        
+        # Check if the ns is muted.
+        if self.muted(ns):
+            return
+        
         mns = '{0}|'.format(ns) if showns else ''
         self.stdout('{0}{1}{2}\n'.format(self.time(timestamp), mns, message))
+    
+    def mute(self, ns):
+        """ Mute a channel."""
+        self.mlock.acquire()
+        self.mutes.append(ns.lower())
+        self.mlock.release()
+    
+    def unmute(self, ns):
+        """ Unmute a channel. """
+        self.mlock.acquire()
+        self.remove(ns.lower())
+        self.mlock.release()
+    
+    def muted(self, ns):
+        """ Check if a channel is muted. """
+        self.mlock.acquire()
+        r = ns.lower() in self.mutes
+        self.mlock.release()
+        return r
 
 
 class Client(dAmnClient):

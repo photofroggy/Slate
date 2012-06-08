@@ -93,7 +93,7 @@ class Bot(object):
         if self.config.api.username is None:
             c=Configure(
                 reactor,
-                '110', '605c4a06216380fbdff26228c53cf610',
+                '198', 'f1e3ec71552293b5b82509c90836778d',
                 agent=self.agent,
                 stdout=self.log.message,
                 stddebug=self.log.debug
