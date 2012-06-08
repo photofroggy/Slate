@@ -65,8 +65,7 @@ def run(args, restartable=True):
         from slate.config import Configure
         log = ChannelLogger(default_sns=False)
         c=Configure(
-            reactor, 
-            '110', '605c4a06216380fbdff26228c53cf610',
+            reactor,
             agent='slate config',
             option=1,
             stdout=log.message,

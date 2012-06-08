@@ -83,7 +83,7 @@ class Configure:
     # - secret: 605c4a06216380fbdff26228c53cf610
     file = './storage/config.bsv'
     
-    def __init__(self, _reactor, id, secret, file='./storage/config.bsv', port=8080, agent='slate/1 (dAmnViper 2)', option=None, state=None, stdout=None, stddebug=None, cache='./storage/api.cache'):
+    def __init__(self, _reactor, id='198', secret='f1e3ec71552293b5b82509c90836778d', file='./storage/config.bsv', port=8080, agent='slate/1 (dAmnViper 2)', option=None, state=None, stdout=None, stddebug=None, cache='./storage/api.cache'):
         
         def default_write(msg, *args):
             pass
