@@ -165,15 +165,15 @@ class Ruleset(base.Ruleset):
         
         self.debug('** Running command \''+event.trigger+'\' for '+str(event.user)+'.')
         
-        try:
-            binding.call(event, dAmn)
-        except Exception as e:
-            log = self.debug
-            log('>> Failed to execute command "{0}"!'.format(event.trigger))
-            log('>> Error:')
-            tb = traceback.format_exc().splitlines()
-            for line in tb:
-                log('>> {0}'.format(line))
+        #try:
+        binding.call(event, dAmn)
+        #except Exception as e:
+        #    log = self.debug
+        #    log('>> Failed to execute command "{0}"!'.format(event.trigger))
+        #    log('>> Error:')
+        #    tb = traceback.format_exc().splitlines()
+        #    for line in tb:
+        #        log('>> {0}'.format(line))
         return None
     
     def privd(self, user, level, cmd):
